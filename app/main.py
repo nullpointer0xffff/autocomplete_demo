@@ -13,10 +13,19 @@ redis_conn = get_redis_connection()
 
 @app.get("/autocomplete/", response_model=AutocompleteResponse)
 async def autocomplete(query: str):
-    suggestions = redis_conn.keys(f"{query}*")
-    suggestions.sort(key=lambda x: -int(redis_conn.get(x) or 0))  # Sort by popularity
+    # Get all search terms that match the prefix, sorted by score (popularity)
+    # https://redis.io/docs/latest/commands/zrevrangebyscore/
+    suggestions = redis_conn.zrevrangebyscore(
+        "search_terms",
+        "+inf",
+        "-inf",
+        withscores=True
+    )
+    
+    # Filter matches and take top 3 results
+    suggestions = [item[0] for item in suggestions if item[0].startswith(query)][:3]
     print(suggestions)
-    return AutocompleteResponse(suggestions=suggestions[:5])
+    return AutocompleteResponse(suggestions=suggestions)
 
 @app.get("/")
 async def root():

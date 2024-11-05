@@ -17,6 +17,6 @@ sample_data = {
 
 # Insert each term with its popularity count
 for term, count in sample_data.items():
-    redis_conn.set(term, count)
+    redis_conn.zadd("search_terms", {term: count})
 
 print("Sample data inserted into Redis.")
