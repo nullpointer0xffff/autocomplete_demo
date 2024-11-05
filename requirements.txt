@@ -1,0 +1,7 @@
+uvicorn
+fastapi
+redis
+pydantic
+pydantic-settings
+pydantic-core
+pydantic-settings-json
